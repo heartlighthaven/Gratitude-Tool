@@ -1,0 +1,730 @@
+<!-- File: Gratitude tool/gratitude.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daily Gratitude Ritual</title>
+  <style>
+    :root {
+      --page-bg: #0d2217;
+      --page-bg-deep: #07120c;
+      --panel: rgba(6, 24, 16, 0.88);
+      --panel-soft: rgba(14, 40, 28, 0.8);
+      --gold: #e7d39a;
+      --gold-soft: rgba(231, 211, 154, 0.32);
+      --gold-line: rgba(231, 211, 154, 0.22);
+      --text: #ffffff;
+      --text-soft: rgba(255, 255, 255, 0.85);
+      --text-muted: rgba(255, 255, 255, 0.68);
+      --button: rgba(255, 255, 255, 0.06);
+      --button-hover: rgba(255, 255, 255, 0.12);
+      --shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+      --card-width: min(92vw, 760px);
+      --radius: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      background:
+        linear-gradient(rgba(6, 18, 12, 0.74), rgba(6, 18, 12, 0.82)),
+        radial-gradient(circle at top, rgba(44, 86, 58, 0.38), transparent 34%),
+        url("assets/background.png") center / cover no-repeat fixed,
+        linear-gradient(180deg, var(--page-bg) 0%, var(--page-bg-deep) 100%);
+      color: var(--text);
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 900px;
+      display: grid;
+      gap: 14px;
+      justify-items: center;
+    }
+
+    .top-bar {
+      width: var(--card-width);
+      display: grid;
+      gap: 8px;
+      text-align: center;
+      justify-items: center;
+    }
+
+    .title {
+      margin: 0;
+      font-size: clamp(1.8rem, 3vw, 2.5rem);
+      font-weight: 500;
+      color: var(--gold);
+      letter-spacing: 0.3px;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--text-soft);
+      font-size: 0.98rem;
+      line-height: 1.45;
+    }
+
+    .privacy {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 0.92rem;
+    }
+
+    .utility-bar {
+      width: var(--card-width);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px;
+      border-radius: 16px;
+      background: rgba(8, 24, 16, 0.55);
+      border: 1px solid var(--gold-line);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(4px);
+    }
+
+    .utility-pill,
+    .utility-button,
+    .volume-wrap {
+      border: 1px solid var(--gold-line);
+      border-radius: 12px;
+      background: var(--button);
+      color: var(--text);
+      font: inherit;
+    }
+
+    .utility-pill {
+      padding: 10px 14px;
+      min-width: 170px;
+      text-align: center;
+    }
+
+    .utility-button {
+      padding: 10px 14px;
+      cursor: pointer;
+    }
+
+    .utility-button:hover,
+    .tab-button:hover,
+    .action-button:hover {
+      background: var(--button-hover);
+    }
+
+    .volume-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+    }
+
+    .volume-wrap label {
+      color: var(--text-soft);
+      font-size: 0.94rem;
+      white-space: nowrap;
+    }
+
+    input[type="range"] {
+      width: 110px;
+      accent-color: var(--gold);
+      cursor: pointer;
+    }
+
+    .gratitude-card {
+      position: relative;
+      width: var(--card-width);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(rgba(5, 23, 15, 0.9), rgba(5, 23, 15, 0.84)),
+        rgba(5, 23, 15, 0.88);
+      border: 1px solid var(--gold-line);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .gratitude-card::before {
+      content: "";
+      position: absolute;
+      inset: 10px;
+      border-radius: calc(var(--radius) - 10px);
+      border: 1px solid rgba(231, 211, 154, 0.14);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .gold-frame {
+      position: absolute;
+      inset: 8px;
+      width: calc(100% - 16px);
+      height: calc(100% - 16px);
+      object-fit: cover;
+      opacity: 0.75;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .gratitude-content {
+      position: relative;
+      z-index: 2;
+      padding: 22px;
+    }
+
+    .inside-header {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .inside-title {
+      margin: 0 0 8px;
+      font-size: 1.45rem;
+      font-weight: 500;
+      color: var(--gold);
+    }
+
+    .inside-copy {
+      margin: 0;
+      color: var(--text-soft);
+      font-size: 0.96rem;
+      line-height: 1.45;
+    }
+
+    .inside-date-time {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin: 14px 0 16px;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .tab-button,
+    .action-button {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid var(--gold-line);
+      border-radius: 12px;
+      background: var(--button);
+      color: var(--text);
+      font: inherit;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .tab-button.active,
+    .action-button.primary {
+      color: var(--gold);
+      background: rgba(231, 211, 154, 0.08);
+      border-color: rgba(231, 211, 154, 0.3);
+    }
+
+    .tab-button:hover,
+    .action-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .prompt-group {
+      display: grid;
+      gap: 12px;
+    }
+
+    .prompt-card {
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(231, 211, 154, 0.14);
+      background: var(--panel-soft);
+    }
+
+    .prompt-label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--gold);
+      font-size: 1rem;
+      line-height: 1.4;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 92px;
+      resize: vertical;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(231, 211, 154, 0.14);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      font: inherit;
+      font-size: 0.98rem;
+      line-height: 1.45;
+    }
+
+    textarea::placeholder {
+      color: rgba(255, 255, 255, 0.42);
+    }
+
+    textarea:focus {
+      outline: 2px solid rgba(231, 211, 154, 0.12);
+      border-color: rgba(231, 211, 154, 0.28);
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .footer-actions {
+      margin-top: 12px;
+    }
+
+    .status {
+      min-height: 22px;
+      margin-top: 14px;
+      text-align: center;
+      color: var(--text-soft);
+      font-size: 0.94rem;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 640px) {
+      :root {
+        --card-width: 100%;
+      }
+
+      body {
+        padding: 12px;
+      }
+
+      .utility-bar,
+      .top-bar,
+      .gratitude-card {
+        width: 100%;
+      }
+
+      .utility-pill,
+      .utility-button,
+      .volume-wrap {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .volume-wrap {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      input[type="range"] {
+        width: 100%;
+      }
+
+      .gratitude-content {
+        padding: 16px;
+      }
+
+      .tabs,
+      .actions {
+        grid-template-columns: 1fr;
+      }
+
+      textarea {
+        min-height: 100px;
+      }
+
+      .gold-frame {
+        inset: 6px;
+        width: calc(100% - 12px);
+        height: calc(100% - 12px);
+        opacity: 0.68;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="top-bar">
+      <h1 class="title">Daily Gratitude Ritual</h1>
+      <p class="subtitle">A gentle morning and evening reflection space.</p>
+      <p class="privacy">Your entries stay on this device only.</p>
+    </header>
+
+    <section class="utility-bar" aria-label="Gratitude tool controls">
+      <div id="currentDate" class="utility-pill"></div>
+      <div id="currentTime" class="utility-pill"></div>
+
+      <button id="toggleMusic" class="utility-button" type="button">Play Music</button>
+
+      <div class="volume-wrap">
+        <label for="volumeSlider">Volume</label>
+        <input id="volumeSlider" type="range" min="0" max="0.12" step="0.01" value="0.03" />
+      </div>
+    </section>
+
+    <main class="gratitude-card">
+      <img class="gold-frame" src="assets/nature frame.png" alt="" />
+
+      <div class="gratitude-content">
+        <div class="inside-header">
+          <h2 class="inside-title">Today’s Reflection</h2>
+          <p class="inside-copy">Pause, notice what feels supportive, and return tonight to reflect.</p>
+        </div>
+
+        <div class="inside-date-time">
+          <div id="insideDate" class="utility-pill"></div>
+          <div id="insideTime" class="utility-pill"></div>
+        </div>
+
+        <div class="tabs">
+          <button class="tab-button active" data-tab="morning" type="button">Morning</button>
+          <button class="tab-button" data-tab="evening" type="button">Evening</button>
+        </div>
+
+        <section id="morning" class="panel active">
+          <div class="prompt-group">
+            <div class="prompt-card">
+              <label class="prompt-label" for="morning1">What am I grateful for this morning?</label>
+              <textarea id="morning1" placeholder="Write here..."></textarea>
+            </div>
+
+            <div class="prompt-card">
+              <label class="prompt-label" for="morning2">What feels supportive in my life right now?</label>
+              <textarea id="morning2" placeholder="Write here..."></textarea>
+            </div>
+
+            <div class="prompt-card">
+              <label class="prompt-label" for="morning3">What do I want to notice more today?</label>
+              <textarea id="morning3" placeholder="Write here..."></textarea>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="saveMorning" class="action-button primary" type="button">Save Morning Entry</button>
+            <button id="clearMorning" class="action-button" type="button">Clear Morning Fields</button>
+          </div>
+        </section>
+
+        <section id="evening" class="panel">
+          <div class="prompt-group">
+            <div class="prompt-card">
+              <label class="prompt-label" for="evening1">What good showed up today?</label>
+              <textarea id="evening1" placeholder="Write here..."></textarea>
+            </div>
+
+            <div class="prompt-card">
+              <label class="prompt-label" for="evening2">Where did something I am grateful for appear today?</label>
+              <textarea id="evening2" placeholder="Write here..."></textarea>
+            </div>
+
+            <div class="prompt-card">
+              <label class="prompt-label" for="evening3">What moment do I want to remember tonight?</label>
+              <textarea id="evening3" placeholder="Write here..."></textarea>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="saveEvening" class="action-button primary" type="button">Save Evening Entry</button>
+            <button id="clearEvening" class="action-button" type="button">Clear Evening Fields</button>
+          </div>
+        </section>
+
+        <div class="footer-actions">
+          <button id="clearToday" class="action-button" type="button">Clear All of Today’s Entries</button>
+        </div>
+
+        <div id="status" class="status">Ready for today’s ritual.</div>
+      </div>
+    </main>
+
+    <audio id="bgMusic" loop preload="auto">
+      <source src="assets/music.mp3" type="audio/mpeg" />
+    </audio>
+  </div>
+
+  <script>
+    const STORAGE_PREFIX = "gratitude-ritual";
+    const dateTargets = [
+      document.getElementById("currentDate"),
+      document.getElementById("insideDate")
+    ];
+    const timeTargets = [
+      document.getElementById("currentTime"),
+      document.getElementById("insideTime")
+    ];
+
+    const statusElement = document.getElementById("status");
+    const toggleMusicButton = document.getElementById("toggleMusic");
+    const volumeSlider = document.getElementById("volumeSlider");
+    const bgMusic = document.getElementById("bgMusic");
+
+    const morningFields = [
+      document.getElementById("morning1"),
+      document.getElementById("morning2"),
+      document.getElementById("morning3")
+    ];
+
+    const eveningFields = [
+      document.getElementById("evening1"),
+      document.getElementById("evening2"),
+      document.getElementById("evening3")
+    ];
+
+    let musicStarted = false;
+    let isMuted = false;
+    let savedVolume = Number(volumeSlider.value);
+
+    function getTodayKey() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const day = String(now.getDate()).padStart(2, "0");
+      return `${STORAGE_PREFIX}-${year}-${month}-${day}`;
+    }
+
+    function formatDate(date) {
+      return date.toLocaleDateString(undefined, {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric"
+      });
+    }
+
+    function formatTime(date) {
+      return date.toLocaleTimeString(undefined, {
+        hour: "numeric",
+        minute: "2-digit"
+      });
+    }
+
+    function updateDateTime() {
+      const now = new Date();
+      const formattedDate = formatDate(now);
+      const formattedTime = formatTime(now);
+
+      dateTargets.forEach((target) => {
+        target.textContent = formattedDate;
+      });
+
+      timeTargets.forEach((target) => {
+        target.textContent = formattedTime;
+      });
+    }
+
+    function getEmptyEntry() {
+      return {
+        morning: ["", "", ""],
+        evening: ["", "", ""],
+        updatedAt: ""
+      };
+    }
+
+    function getSavedEntry() {
+      const raw = localStorage.getItem(getTodayKey());
+
+      if (!raw) {
+        return getEmptyEntry();
+      }
+
+      try {
+        const parsed = JSON.parse(raw);
+
+        return {
+          morning: Array.isArray(parsed.morning) ? parsed.morning.slice(0, 3) : ["", "", ""],
+          evening: Array.isArray(parsed.evening) ? parsed.evening.slice(0, 3) : ["", "", ""],
+          updatedAt: typeof parsed.updatedAt === "string" ? parsed.updatedAt : ""
+        };
+      } catch {
+        return getEmptyEntry();
+      }
+    }
+
+    function saveEntry(entry) {
+      localStorage.setItem(getTodayKey(), JSON.stringify(entry));
+    }
+
+    function fillFields(fields, values) {
+      fields.forEach((field, index) => {
+        field.value = values[index] || "";
+      });
+    }
+
+    function readFields(fields) {
+      return fields.map((field) => field.value.trim());
+    }
+
+    function loadTodayEntry() {
+      const entry = getSavedEntry();
+      fillFields(morningFields, entry.morning);
+      fillFields(eveningFields, entry.evening);
+    }
+
+    function setStatus(message) {
+      statusElement.textContent = message;
+    }
+
+    function getTimestamp() {
+      return new Date().toLocaleTimeString(undefined, {
+        hour: "numeric",
+        minute: "2-digit"
+      });
+    }
+
+    function saveMorningEntry() {
+      const entry = getSavedEntry();
+      entry.morning = readFields(morningFields);
+      entry.updatedAt = getTimestamp();
+      saveEntry(entry);
+      setStatus(`Morning entry saved at ${entry.updatedAt}.`);
+    }
+
+    function saveEveningEntry() {
+      const entry = getSavedEntry();
+      entry.evening = readFields(eveningFields);
+      entry.updatedAt = getTimestamp();
+      saveEntry(entry);
+      setStatus(`Evening entry saved at ${entry.updatedAt}.`);
+    }
+
+    function clearFields(fields) {
+      fields.forEach((field) => {
+        field.value = "";
+      });
+    }
+
+    function clearMorningFields() {
+      clearFields(morningFields);
+      setStatus("Morning fields cleared. Save if you want to keep them empty.");
+    }
+
+    function clearEveningFields() {
+      clearFields(eveningFields);
+      setStatus("Evening fields cleared. Save if you want to keep them empty.");
+    }
+
+    function clearTodayEntry() {
+      localStorage.removeItem(getTodayKey());
+      clearFields(morningFields);
+      clearFields(eveningFields);
+      setStatus("Today’s entries were cleared from this device.");
+    }
+
+    function setupTabs() {
+      const tabButtons = document.querySelectorAll(".tab-button");
+      const panels = document.querySelectorAll(".panel");
+
+      tabButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const tabName = button.dataset.tab;
+
+          tabButtons.forEach((tabButton) => {
+            tabButton.classList.toggle("active", tabButton === button);
+          });
+
+          panels.forEach((panel) => {
+            panel.classList.toggle("active", panel.id === tabName);
+          });
+        });
+      });
+    }
+
+    function applyVolume(volume) {
+      bgMusic.volume = Math.max(0, Math.min(0.12, volume));
+    }
+
+    function updateMusicButton() {
+      if (!musicStarted) {
+        toggleMusicButton.textContent = "Play Music";
+        return;
+      }
+
+      toggleMusicButton.textContent = isMuted ? "Unmute Music" : "Mute Music";
+    }
+
+    async function startMusicIfNeeded() {
+      if (musicStarted) {
+        return;
+      }
+
+      try {
+        bgMusic.muted = false;
+        applyVolume(savedVolume);
+        await bgMusic.play();
+        musicStarted = true;
+        isMuted = false;
+        updateMusicButton();
+        setStatus("Music is playing very softly.");
+      } catch (error) {
+        setStatus("Music was blocked until another click.");
+        console.error(error);
+      }
+    }
+
+    async function toggleMusic() {
+      if (!musicStarted) {
+        await startMusicIfNeeded();
+        return;
+      }
+
+      isMuted = !isMuted;
+      bgMusic.muted = isMuted;
+      updateMusicButton();
+      setStatus(isMuted ? "Music is muted." : "Music is playing very softly.");
+    }
+
+    function updateVolume(event) {
+      savedVolume = Number(event.target.value);
+
+      if (!isMuted) {
+        applyVolume(savedVolume);
+      }
+
+      setStatus(savedVolume === 0 ? "Music volume is at zero." : "Music volume adjusted.");
+    }
+
+    document.getElementById("saveMorning").addEventListener("click", saveMorningEntry);
+    document.getElementById("saveEvening").addEventListener("click", saveEveningEntry);
+    document.getElementById("clearMorning").addEventListener("click", clearMorningFields);
+    document.getElementById("clearEvening").addEventListener("click", clearEveningFields);
+    document.getElementById("clearToday").addEventListener("click", clearTodayEntry);
+    toggleMusicButton.addEventListener("click", toggleMusic);
+    volumeSlider.addEventListener("input", updateVolume);
+
+    updateDateTime();
+    window.setInterval(updateDateTime, 1000);
+    setupTabs();
+    loadTodayEntry();
+    applyVolume(savedVolume);
+    updateMusicButton();
+  </script>
+</body>
+</html>
