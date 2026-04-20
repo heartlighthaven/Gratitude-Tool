@@ -1,4 +1,4 @@
-<!-- File: Gratitude tool/gratitude.html -->
+<!-- Gratitude tool/gratitude.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -85,20 +85,6 @@
       margin: 0;
       color: var(--text-muted);
       font-size: 0.92rem;
-    }
-
-    .utility-bar {
-      width: var(--card-width);
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 8px;
-      padding: 10px;
-      border-radius: 16px;
-      background: rgba(8, 24, 16, 0.55);
-      border: 1px solid var(--gold-line);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(4px);
     }
 
     .utility-pill,
@@ -211,7 +197,50 @@
       flex-wrap: wrap;
       justify-content: center;
       gap: 8px;
-      margin: 14px 0 16px;
+      margin: 14px 0 12px;
+    }
+
+    .reflection-controls {
+      margin: 0 0 16px;
+      border-radius: 16px;
+      border: 1px solid var(--gold-line);
+      background: rgba(8, 24, 16, 0.55);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(4px);
+      overflow: hidden;
+    }
+
+    .reflection-summary {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      cursor: pointer;
+      color: var(--text);
+      font-size: 0.95rem;
+      user-select: none;
+    }
+
+    .reflection-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .reflection-summary::after {
+      content: "▾";
+      color: var(--gold);
+      transition: transform 0.2s ease;
+    }
+
+    .reflection-controls[open] .reflection-summary::after {
+      transform: rotate(180deg);
+    }
+
+    .reflection-controls-body {
+      display: grid;
+      gap: 8px;
+      padding: 0 12px 12px;
     }
 
     .tabs {
@@ -326,7 +355,6 @@
         padding: 12px;
       }
 
-      .utility-bar,
       .top-bar,
       .gratitude-card {
         width: 100%;
@@ -342,6 +370,10 @@
       .volume-wrap {
         flex-direction: column;
         align-items: stretch;
+      }
+
+      .reflection-summary {
+        padding: 11px 12px;
       }
 
       input[type="range"] {
@@ -378,18 +410,6 @@
       <p class="privacy">Your entries stay on this device only.</p>
     </header>
 
-    <section class="utility-bar" aria-label="Gratitude tool controls">
-      <div id="currentDate" class="utility-pill"></div>
-      <div id="currentTime" class="utility-pill"></div>
-
-      <button id="toggleMusic" class="utility-button" type="button">Play Music</button>
-
-      <div class="volume-wrap">
-        <label for="volumeSlider">Volume</label>
-        <input id="volumeSlider" type="range" min="0" max="0.12" step="0.01" value="0.03" />
-      </div>
-    </section>
-
     <main class="gratitude-card">
       <img class="gold-frame" src="assets/nature frame.png" alt="" />
 
@@ -403,6 +423,19 @@
           <div id="insideDate" class="utility-pill"></div>
           <div id="insideTime" class="utility-pill"></div>
         </div>
+
+        <details class="reflection-controls">
+          <summary class="reflection-summary">Music Controls</summary>
+
+          <div class="reflection-controls-body">
+            <button id="toggleMusic" class="utility-button" type="button">Play Music</button>
+
+            <div class="volume-wrap">
+              <label for="volumeSlider">Volume</label>
+              <input id="volumeSlider" type="range" min="0" max="0.12" step="0.01" value="0.03" />
+            </div>
+          </div>
+        </details>
 
         <div class="tabs">
           <button class="tab-button active" data-tab="morning" type="button">Morning</button>
@@ -472,14 +505,8 @@
 
   <script>
     const STORAGE_PREFIX = "gratitude-ritual";
-    const dateTargets = [
-      document.getElementById("currentDate"),
-      document.getElementById("insideDate")
-    ];
-    const timeTargets = [
-      document.getElementById("currentTime"),
-      document.getElementById("insideTime")
-    ];
+    const insideDate = document.getElementById("insideDate");
+    const insideTime = document.getElementById("insideTime");
 
     const statusElement = document.getElementById("status");
     const toggleMusicButton = document.getElementById("toggleMusic");
@@ -528,16 +555,8 @@
 
     function updateDateTime() {
       const now = new Date();
-      const formattedDate = formatDate(now);
-      const formattedTime = formatTime(now);
-
-      dateTargets.forEach((target) => {
-        target.textContent = formattedDate;
-      });
-
-      timeTargets.forEach((target) => {
-        target.textContent = formattedTime;
-      });
+      insideDate.textContent = formatDate(now);
+      insideTime.textContent = formatTime(now);
     }
 
     function getEmptyEntry() {
